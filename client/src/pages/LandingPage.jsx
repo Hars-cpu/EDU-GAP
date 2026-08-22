@@ -7,7 +7,7 @@ import {
   FiTarget,
   FiBarChart2,
 } from "react-icons/fi";
-
+import { useNavigate } from "react-router-dom";
 
 const features = [
   {
@@ -37,6 +37,7 @@ const features = [
 ];
 
 const LandingPage = () => {
+  const navigate = useNavigate();
   return (
     <div className="min-h-screen overflow-hidden bg-[#F8FCFA]">
       {/* ================= NAVBAR ================= */}
@@ -57,26 +58,27 @@ const LandingPage = () => {
 
           {/* Get Started */}
 
-          <button
-            className="
-              flex
-              items-center
-              gap-2
-              rounded-xl
-              bg-white
-              px-5
-              py-2.5
-              text-sm
-              font-bold
-              text-[#008F6B]
-              shadow-lg
-              transition
-              hover:-translate-y-0.5
-            "
-          >
-            Get Started
-            <FiArrowRight size={16} />
-          </button>
+         <button
+  onClick={() => navigate("/signup")}
+  className="
+    inline-flex
+    items-center
+    gap-3
+    rounded-xl
+    bg-white
+    px-7
+    py-4
+    text-sm
+    font-extrabold
+    text-[#008F6B]
+    shadow-2xl
+    transition
+    hover:-translate-y-1
+  "
+>
+  Get Started
+  <FiArrowRight size={18} />
+</button>
         </div>
       </nav>
 
@@ -225,28 +227,27 @@ const LandingPage = () => {
               and progress into one personalized experience.
             </p>
 
-            <button
-              className="
-                mt-8
-                inline-flex
-                items-center
-                gap-3
-                rounded-xl
-                bg-white
-                px-7
-                py-4
-                text-sm
-                font-extrabold
-                text-[#008F6B]
-                shadow-2xl
-                transition
-                hover:-translate-y-1
-              "
-            >
-              Get Started
-
-              <FiArrowRight size={18} />
-            </button>
+           <button
+  onClick={() => navigate("/signup")}
+  className="
+    inline-flex
+    items-center
+    gap-3
+    rounded-xl
+    bg-white
+    px-7
+    py-4
+    text-sm
+    font-extrabold
+    text-[#008F6B]
+    shadow-2xl
+    transition
+    hover:-translate-y-1
+  "
+>
+  Get Started
+  <FiArrowRight size={18} />
+</button>
           </motion.div>
         </div>
       </section>
@@ -328,22 +329,27 @@ const LandingPage = () => {
             Your questions. Your sources. Your progress.
           </p>
 
-          <button
-            className="
-              mt-4
-              inline-flex
-              items-center
-              gap-2
-              text-sm
-              font-bold
-              text-[#008F6B]
-              transition
-              hover:gap-3
-            "
-          >
-            Start Learning
-            <FiArrowRight />
-          </button>
+         <button
+  onClick={() => navigate("/signup")}
+  className="
+    inline-flex
+    items-center
+    gap-3
+    rounded-xl
+    bg-white
+    px-7
+    py-4
+    text-sm
+    font-extrabold
+    text-[#008F6B]
+    shadow-2xl
+    transition
+    hover:-translate-y-1
+  "
+>
+  Get Started
+  <FiArrowRight size={18} />
+</button>
         </motion.div>
       </section>
     </div>
