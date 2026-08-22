@@ -20,6 +20,16 @@ const userSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
+    role:{
+        type: String,
+        enum: ['student', 'teacher'],
+        required: true,
+    },
+     class: {
+      type: String,
+      required: [true, 'Class is required'],
+     
+    },
    
   },
   { timestamps: true }
