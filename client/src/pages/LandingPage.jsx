@@ -226,28 +226,6 @@ const LandingPage = () => {
               your educational sources, doubts, quizzes,
               and progress into one personalized experience.
             </p>
-
-           <button
-  onClick={() => navigate("/signup")}
-  className="
-    inline-flex
-    items-center
-    gap-3
-    rounded-xl
-    bg-white
-    px-7
-    py-4
-    text-sm
-    font-extrabold
-    text-[#008F6B]
-    shadow-2xl
-    transition
-    hover:-translate-y-1
-  "
->
-  Get Started
-  <FiArrowRight size={18} />
-</button>
           </motion.div>
         </div>
       </section>
