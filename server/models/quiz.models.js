@@ -38,7 +38,7 @@ const quizSchema = new mongoose.Schema(
       enum: ["chat", "weak_topics"],
     },
 
-    topics: [String],
+   
 
     questions: [questionSchema],
 
