@@ -12,81 +12,16 @@ import {
   FiShield,
 } from "react-icons/fi";
 import { useNavigate } from "react-router-dom";
-import { ToastContainer, toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
-
-
+import {serverurl} from "../main.jsx";
+import { toast } from "react-toastify";
+import axios from "axios";
+import { useDispatch } from "react-redux";
+import { setUser } from "../redux/slices/authSlice";
 /* =========================================================
    FAKE SIGN-IN API
 ========================================================= */
 
-const fakeSignInAPI = (data) => {
-  return new Promise((resolve, reject) => {
-    setTimeout(() => {
 
-      const fakeUsers = [
-        {
-          email: "harsh@gmail.com",
-          password: "password123",
-        },
-        {
-          email: "student@gmail.com",
-          password: "student123",
-        },
-      ];
-
-      const user = fakeUsers.find(
-        (item) =>
-          item.email.toLowerCase() ===
-          data.email.toLowerCase()
-      );
-
-
-      // User not found
-      if (!user) {
-        reject({
-          response: {
-            data: {
-              success: false,
-              message: "User not found",
-            },
-          },
-        });
-
-        return;
-      }
-
-
-      // Password doesn't match
-      if (user.password !== data.password) {
-        reject({
-          response: {
-            data: {
-              success: false,
-              message: "Password does not match",
-            },
-          },
-        });
-
-        return;
-      }
-
-
-      // Success
-      resolve({
-        data: {
-          success: true,
-          message: "Login successful",
-          user: {
-            id: "fake-user-id-123",
-            email: user.email,
-          },
-        },
-      });
-
-    }, 1200);
-  });
-};
 
 
 
@@ -130,7 +65,7 @@ const validateForm = (formData) => {
 
 
 export default function SignIn() {
- 
+ const dispatch = useDispatch();
   
 const [showPassword, setShowPassword] =
     useState(false);
@@ -244,29 +179,26 @@ const [showPassword, setShowPassword] =
       );
 
 
-      /*
-        Later replace:
-
-        fakeSignInAPI(payload)
-
-        with:
-
-        axios.post(
-          "/api/auth/signin",
-          payload
-        )
-      */
+      
 
       const response =
-        await fakeSignInAPI(payload);
+        await axios.post(
+          `${serverurl}/api/auth/signin`,
+          payload,
+          {
+            withCredentials: true,
+          }
+        );
 
+        
+     
 
       console.log(
         "SIGN IN RESPONSE:",
         response.data
       );
 
-
+dispatch(setUser(response.user));
       /* =========================
          SUCCESS
       ========================= */
@@ -276,6 +208,12 @@ const [showPassword, setShowPassword] =
           "Login successful!"
       );
 
+
+     if (response.user.role === "student") {
+  navigate("/student");
+} else {
+  navigate("/teacher");
+}
 
     } catch (error) {
 
@@ -1021,15 +959,7 @@ const [showPassword, setShowPassword] =
           TOAST
       ================================================= */}
 
-      <ToastContainer
-        position="top-right"
-        autoClose={3000}
-        hideProgressBar={false}
-        newestOnTop
-        closeOnClick
-        pauseOnHover
-        theme="light"
-      />
+     
 
     </div>
   );

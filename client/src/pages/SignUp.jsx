@@ -11,8 +11,12 @@ import {
 } from "react-icons/fi";
 import { Link, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
+import { useDispatch } from "react-redux";
+import { setUser } from "../redux/slices/authSlice";
+import axios from "axios";
 
 const SignUp = () => {
+    const dispatch = useDispatch();
   const navigate = useNavigate();
 
   const [formData, setFormData] = useState({
@@ -128,8 +132,22 @@ const SignUp = () => {
       // Replace with real API later
       // ========================================
 
-      const response = await fakeSignupApi(formData);
-
+      const response =await axios.post(
+        "http://localhost:5000/api/auth/signup",
+        formData,{
+          withCredentials: true,}
+      );
+       
+      dispatch(
+  setUser({
+    id: response.user.id,
+    name: response.user.name,
+    username: response.user.username,
+    email: response.user.email,
+    className: response.user.className,
+    role: response.user.role,
+  })
+);
       toast.success(response.message);
 
       // Navigate to signin after success
@@ -661,31 +679,6 @@ const RoleButton = ({
 // FAKE API
 // ==================================================
 
-const fakeSignupApi = async (data) => {
-  return new Promise((resolve, reject) => {
-    setTimeout(() => {
-      console.log("Signup payload:", data);
 
-      
-        // To test backend-style errors, uncomment this:
-
-        reject({
-          response: {
-            data: {
-              message: "Username already exists",
-              errors: {
-                username: "Username already exists",
-              },
-            },
-          },
-        });
-      
-      
-      resolve({
-        message: "Signup successful!",
-      });
-    }, 1000);
-  });
-};
 
 export default SignUp;

@@ -36,6 +36,7 @@ const features = [
   },
 ];
 
+
 const LandingPage = () => {
   const navigate = useNavigate();
   return (
