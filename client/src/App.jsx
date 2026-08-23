@@ -119,8 +119,10 @@ function App() {
   />
   <Route
     path="/student/analytics"
-    element={<Analytics />}
+    element={<StudentProgress/>}
   />
+
+  
 </Route>
         {/* ================= TEACHER ================= */}
 
