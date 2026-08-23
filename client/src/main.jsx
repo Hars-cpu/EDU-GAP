@@ -7,8 +7,8 @@ import { Provider } from "react-redux";
 
 import './index.css'
 import App from './App.jsx'
-export const serverurl="http://localhost:5000";
-
+export const serverurl = import.meta.env.VITE_BACKEND_URL;
+console.log(serverurl)
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
