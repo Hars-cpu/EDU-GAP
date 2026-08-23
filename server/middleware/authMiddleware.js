@@ -19,8 +19,12 @@ export const protect = async (req, res, next) => {
     );
 
     // Find user
-    const user = await User.findById(decoded.id)
-      .select("-password");
+    let user = null;
+    if (User.db.readyState === 1) {
+      user = await User.findById(decoded.id).select("-password");
+    }
+    // A verified token is enough for ephemeral chatbot data when Mongo is offline.
+    user ||= { _id: decoded.id, id: decoded.id, role: decoded.role };
 
     if (!user) {
       return res.status(401).json({

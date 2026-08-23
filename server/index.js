@@ -1,18 +1,17 @@
 import express from "express";
+import "./config/env.js";
 import cors from "cors";
 import cookieParser from "cookie-parser";
 
-import dotenv from "dotenv";
-dotenv.config();
-
 import connectDB from "./config/db.js";
 import authRoutes from "./routes/authRoutes.js";
+import chatbotRoutes from "./routes/chatbotRoutes.js";
 
 
 const app = express();
 
 // Connect MongoDB
- connectDB();
+connectDB();
 
 // Middleware
 app.use(
@@ -26,6 +25,7 @@ app.use(express.json());
 app.use(cookieParser());
 // Routes
 app.use("/api/auth", authRoutes);
+app.use("/api/chatbot", chatbotRoutes);
 
 // Test
 app.get("/", (req, res) => {

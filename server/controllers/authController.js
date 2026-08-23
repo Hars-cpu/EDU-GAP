@@ -1,6 +1,10 @@
 import User from "../models/user.model.js";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
+import crypto from "node:crypto";
+
+const memoryUsers = new Map();
+const mongoAvailable = () => User.db.readyState === 1;
 
 // Generate JWT
 const generateToken = (user) => {
@@ -29,9 +33,9 @@ export const signup = async (req, res) => {
       class: userClass,
     } = req.body;
 
-    const existingUser = await User.findOne({
-      $or: [{ email }, { username }],
-    });
+    const existingUser = mongoAvailable()
+      ? await User.findOne({ $or: [{ email }, { username }] })
+      : [...memoryUsers.values()].find((item) => item.email === email || item.username === username);
 
     if (existingUser) {
       return res.status(400).json({
@@ -41,14 +45,10 @@ export const signup = async (req, res) => {
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    const user = await User.create({
-      name,
-      username,
-      email,
-      password: hashedPassword,
-      role,
-      class: userClass,
-    });
+    const user = mongoAvailable()
+      ? await User.create({ name, username, email, password: hashedPassword, role, class: userClass })
+      : { _id: crypto.randomUUID(), name, username, email, password: hashedPassword, role, class: userClass };
+    if (!mongoAvailable()) memoryUsers.set(String(user._id), user);
     const token = generateToken(user);
 
     // Send JWT in cookie
@@ -113,7 +113,9 @@ export const login = async (req, res) => {
     const { email, password } = req.body;
 
 
-    const user = await User.findOne({ email });
+    const user = mongoAvailable()
+      ? await User.findOne({ email })
+      : [...memoryUsers.values()].find((item) => item.email === email);
 
 
     if (!user) {

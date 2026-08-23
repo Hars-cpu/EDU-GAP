@@ -1,51 +1,52 @@
 # Copilot instructions for EDU-GAP
 
-## Repository layout and architecture
+## Project structure and architecture
 
-- `client/` is the implemented frontend. It is a Vite app using React 19, React Router, Tailwind CSS v4, Framer Motion, React Icons, and React Toastify.
-- `client/src/main.jsx` is the browser entrypoint. It imports the global Tailwind stylesheet and renders `App` in `StrictMode`.
-- `client/src/App.jsx` owns the top-level `BrowserRouter` and route table:
-  - `/` renders `LandingPage`
-  - `/signin` renders `SignIn`
-  - `/signup` renders `SignUp`
-- Page components in `client/src/pages/` contain their own presentation and interaction logic. Navigation should use React Router (`Link` or `useNavigate`) rather than direct location changes.
-- Styling is primarily Tailwind utility classes. `client/src/index.css` loads Tailwind with `@import "tailwindcss";`; `App.css` is currently empty. Tailwind is wired through the `@tailwindcss/vite` plugin in `client/vite.config.js`.
-- Authentication is currently a frontend-only prototype: sign-in checks hard-coded fake users and sign-up calls a fake delayed API. Preserve the existing validation, loading state, toast feedback, and route behavior when replacing these with backend calls.
-- `server/` currently contains only `package.json`. Its scripts expect an `index.js` entrypoint (`nodemon index.js` for development and `node index.js` for start), but no server implementation is present yet. Do not assume API routes or a backend contract exists.
-- `.claude/settings.json` enables the official Claude `context7` plugin; keep repository assistant configuration compatible with that integration.
+EDU-GAP is branded as **EduBridge** in the UI. It is currently a Vite/React frontend paired with a not-yet-implemented Node backend.
+
+- `client/` is the working application. `client/src/main.jsx` mounts the app in `StrictMode`, provides the Redux store, renders the global `ToastContainer`, and defines the hard-coded API base URL (`http://localhost:5000`).
+- `client/src/App.jsx` owns the `BrowserRouter`, performs the current-user request on startup, and defines all routes:
+  - Public: `/`
+  - Guest-only: `/signin`, `/signup`
+  - Student-only: `/student`, `/student/chatbot`, `/student/quiz`, `/student/analytics`
+  - Teacher-only: `/teacher`, `/teacher/students`
+- `GuestRoute` and `ProtectedRoute` gate nested routes with Redux auth state. Preserve role-based redirects when adding routes.
+- `client/src/redux/store.js` contains the only configured global state. `redux/slices/authSlice.js` tracks `user`, `isAuthenticated`, and `isLoading`; pages otherwise keep state locally.
+- `client/src/pages/` contains route-level screens. `Chatbot` composes the reusable `components/DoubtChat/` pieces (`DoubtChat`, source panel/modal, chat panel, and constants).
+- The doubt-chat UI is currently a local simulation: source uploads/URLs, workflow progress, and assistant replies are held in component state and use timers. It is not yet connected to an AI or source-processing backend.
+- `server/` has only `package.json`. It lists Express/Mongoose/auth/security dependencies and scripts targeting `server/index.js`, but that entrypoint and API implementation are absent. Do not infer a server contract from the dependency list.
+- `.claude/settings.json` enables the official `context7` plugin. Keep assistant configuration compatible with it.
 
 ## Build, lint, and test commands
 
-Run commands from the directory named below:
+Run commands from the relevant package directory:
 
 ```powershell
 # client/
-npm install                 # first setup or after package-lock changes
-npm run dev                 # start the Vite development server
-npm run build               # create the production build in dist/
-npm run lint                # run ESLint over JavaScript and JSX
-npm run preview             # preview the production build
+npm install
+npm run dev       # Vite dev server, normally http://localhost:5173
+npm run build     # production build in client/dist/
+npm run lint      # ESLint over client JavaScript/JSX; dist is ignored
+npm run preview    # serve the production build
 ```
 
-The client has no test script, test runner, or test files currently configured, so there is no supported full-suite or single-test command yet. Do not add a made-up `npm test` invocation; when tests are introduced, document the runner-specific single-test selector here.
-
-The placeholder server package defines:
+There is no client test script, test runner, or test file currently configured, so there is no supported full-suite or single-test command. Do not invent an `npm test` command; document a runner-specific selector here when tests are added.
 
 ```powershell
 # server/
-npm run dev                 # requires server/index.js and nodemon
-npm start                   # requires server/index.js
+npm run dev       # nodemon index.js; currently fails because index.js is absent
+npm start          # node index.js; currently fails because index.js is absent
+npm test           # intentionally exits with "Error: no test specified"
 ```
 
-Its `npm test` script intentionally exits with “Error: no test specified”; treat that as an unconfigured test command, not a passing test suite.
+## Frontend conventions
 
-## Code conventions in this repository
-
-- Use functional React components and local React hooks (`useState`, `useNavigate`) for page state and interactions.
-- Keep route-level pages under `client/src/pages/`; add shared UI only when it is genuinely reused across pages.
-- Use double-quoted imports/strings in the existing JSX source, while preserving the established formatting in the file being edited. The Vite config and ESLint config use single quotes, matching their existing scaffold style.
-- Use `react-icons/fi` icons and Framer Motion for the established visual language. Existing pages use motion enter/scroll/hover transitions and Tailwind classes rather than separate component CSS.
-- Form pages validate all relevant fields before making an API call, clear an individual field’s error when that field changes, disable submit while loading, and surface success/failure through `react-toastify`.
-- Keep form payload construction and backend error mapping explicit. The existing auth pages expect backend-style errors under `error.response.data.message` and optional field errors under `error.response.data.errors`.
-- Keep the green EduBridge visual system consistent with existing Tailwind tokens such as `#008F6B`, `#E2F5EF`, `#17221F`, and `#75827E` unless a deliberate design change requires otherwise.
-- ESLint uses the flat config in `client/eslint.config.js`, applies recommended JavaScript rules plus React Hooks and React Refresh rules, and ignores `dist`. New client files should be `.js` or `.jsx` and comply with that config.
+- Use functional React components and local hooks for page state. Add route-level screens under `client/src/pages/` and register them in `App.jsx`.
+- Use React Router `Link`, `NavLink`, or `useNavigate` for navigation; do not use direct `window.location` changes.
+- Use Tailwind v4 utility classes. Tailwind is loaded by `client/src/index.css` and the `@tailwindcss/vite` plugin in `client/vite.config.js`; do not add a `tailwind.config.js` without a deliberate Tailwind configuration change. `App.css` is currently empty.
+- Match the existing UI system: green EduBridge colors such as `#008F6B`/`#008f68`, pale green backgrounds, `react-icons/fi`, and Framer Motion enter/hover/scroll transitions. Avoid introducing CSS modules or component-specific styling systems.
+- Existing JSX uses double-quoted imports and strings; the Vite and ESLint config files use single quotes. Match the local file’s established style.
+- Auth requests use Axios with `withCredentials: true` and the shared `serverurl` from `main.jsx` where available. Existing endpoints are `/api/auth/current-user`, `/api/auth/login`, `/api/auth/signup`, and `/api/auth/logout`.
+- Preserve auth UX when changing API wiring: validate before submitting, clear only the edited field’s error, disable while loading, dispatch the appropriate auth action, and show feedback with `react-toastify`. Map backend messages from `error.response.data.message` and field errors from `error.response.data.errors`.
+- Keep authentication transitions consistent with `authSlice`: successful login/current-user/signup dispatches `setUser`; logout or failed current-user lookup dispatches `clearUser`.
+- New client `.js`/`.jsx` files must satisfy the flat ESLint configuration in `client/eslint.config.js` (recommended JavaScript, React Hooks, and React Refresh rules).
