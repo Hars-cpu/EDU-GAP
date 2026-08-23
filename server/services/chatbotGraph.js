@@ -23,7 +23,7 @@ const generate = async (state) => {
   }
   const model = new ChatGoogleGenerativeAI({
     apiKey: googleApiKey,
-    model: "gemini-2.5-flash",
+    model: "gemini-3.6-flash",
     temperature: 0.2,
   });
   const context = state.context.map((doc) => `[${doc.metadata.sourceName}]\n${doc.pageContent}`).join("\n\n");
