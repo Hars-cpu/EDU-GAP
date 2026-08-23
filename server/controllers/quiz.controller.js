@@ -337,9 +337,43 @@ export const deleteQuiz = async (req, res) => {
       });
     }
 
+    let completedQuizzes = await Quiz.find({
+      student: studentId,
+      status: "completed",
+    }).sort({ completedAt: -1 });
+
+    if (completedQuizzes.length > 3) {
+      const quizzesToDelete = completedQuizzes.slice(3);
+      await Quiz.deleteMany({ _id: { $in: quizzesToDelete.map((item) => item._id) } });
+      completedQuizzes = completedQuizzes.slice(0, 3);
+    }
+
+    let progressSummary = "";
+    let weakTopics = [];
+
+    if (completedQuizzes.length) {
+      const progressAnalysis = await generateProgressSummary({
+        quizzes: completedQuizzes,
+      });
+
+      progressSummary = progressAnalysis.progressSummary || "";
+      weakTopics = progressAnalysis.weakTopics || [];
+    }
+
     await StudentAnalytics.findOneAndUpdate(
       { student: studentId },
-      { $pull: { recentQuizzes: quiz._id } }
+      {
+        $set: {
+          recentQuizzes: completedQuizzes.map((item) => item._id),
+          overallProgressSummary: progressSummary,
+          weakTopics,
+        },
+      },
+      {
+        new: true,
+        upsert: true,
+        setDefaultsOnInsert: true,
+      }
     );
 
     return res.status(200).json({
