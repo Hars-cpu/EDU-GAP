@@ -40,7 +40,7 @@ export const getQuizLlm = () => {
   }
   return new ChatGoogleGenerativeAI({
     apiKey: googleApiKey,
-    model: "gemini-2.5-flash",
+    model: "gemini-3.6-flash",
     temperature: 0.2,
   });
 };
