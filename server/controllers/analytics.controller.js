@@ -63,3 +63,39 @@ export const getInProgressQuizzes = async (req, res) => {
     });
   }
 };
+export const getStudentAnalyticsForTeacher =
+  async (req, res) => {
+    try {
+      const { studentId } = req.params;
+
+      const analytics =
+        await StudentAnalytics.findOne({
+          student: studentId,
+        }).populate(
+          "student",
+          "name username email className"
+        );
+
+      if (!analytics) {
+        return res.status(404).json({
+          success: false,
+          message:
+            "Student analytics not found",
+        });
+      }
+
+      res.status(200).json({
+        success: true,
+        analytics,
+      });
+
+    } catch (error) {
+      console.error(error);
+
+      res.status(500).json({
+        success: false,
+        message:
+          "Failed to get student analytics",
+      });
+    }
+  };
