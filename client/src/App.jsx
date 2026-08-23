@@ -11,14 +11,16 @@ import { useDispatch } from "react-redux";
 import LandingPage from "./pages/LandingPage";
 import SignUp from "./pages/SignUp";
 import SignIn from "./pages/SignIn";
-
+import StudentProgress from "./pages/StudentProgress";
 import StudentDashboard from "./pages/StudentDashboard";
 import TeacherDashboard from "./pages/TeacherDashboard";
 import { setUser, clearUser } from "./redux/slices/authSlice";
 import { toast } from "react-toastify";
 import ProtectedRoute from "./components/ProtectedRoute";
 import "react-toastify/dist/ReactToastify.css";
-
+import Chatbot from "./pages/Chatbot";
+import Quiz from "./pages/Quiz";
+import Analytics from "./pages/Analytics";
 import GuestRoute from "./components/GuestRoute";
 
 import {serverurl} from "./main.jsx";
@@ -73,33 +75,48 @@ function App() {
 
         {/* ================= STUDENT ================= */}
 
-        <Route
-          element={
-            <ProtectedRoute
-              allowedRoles={["student"]}
-            />
-          }
-        >
-          <Route
-            path="/student"
-            element={<StudentDashboard />}
-          />
-        </Route>
+       <Route
+  element={
+    <ProtectedRoute allowedRoles={["student"]} />
+  }
+>
+  <Route
+    path="/student"
+    element={<StudentDashboard />}
+  />
 
+  <Route
+    path="/student/chatbot"
+    element={<Chatbot />}
+  />
+
+  <Route
+    path="/student/quiz"
+    element={<Quiz />}
+  />
+
+  <Route
+    path="/student/analytics"
+    element={<Analytics />}
+  />
+</Route>
         {/* ================= TEACHER ================= */}
 
         <Route
-          element={
-            <ProtectedRoute
-              allowedRoles={["teacher"]}
-            />
-          }
-        >
-          <Route
-            path="/teacher"
-            element={<TeacherDashboard />}
-          />
-        </Route>
+  element={
+    <ProtectedRoute allowedRoles={["teacher"]} />
+  }
+>
+  <Route
+    path="/teacher"
+    element={<TeacherDashboard />}
+  />
+
+  <Route
+    path="/teacher/students"
+    element={<StudentProgress />}
+  />
+</Route>
 
       </Routes>
     </BrowserRouter>
