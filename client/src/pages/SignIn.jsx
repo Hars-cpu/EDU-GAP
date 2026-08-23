@@ -219,7 +219,7 @@ const [showPassword, setShowPassword] =
 
       console.log(
         "SIGN IN ERROR:",
-        error
+        error.message
       );
 
 
