@@ -34,7 +34,25 @@ export default function DoubtChat({
   useEffect(() => {
     let isMounted = true;
 
-    const loadSources = async () => {
+    const initializeSources = async () => {
+      try {
+        await axios.post(
+          `${serverurl}/api/chatbot/reset`,
+          {},
+          {
+            withCredentials: true,
+          }
+        );
+        if (isMounted) {
+          setSources([]);
+        }
+      } catch (error) {
+        console.error(
+          error.response?.data?.message || error.message,
+          "Failed to reset chatbot session"
+        );
+      }
+
       try {
         const response = await axios.get(`${serverurl}/api/chatbot/sources`, {
           withCredentials: true,
@@ -45,10 +63,11 @@ export default function DoubtChat({
           error.response?.data?.message || error.message,
           "Failed to load chatbot sources"
         );
+        if (isMounted) setSources([]);
       }
     };
 
-    loadSources();
+    initializeSources();
 
     return () => {
       isMounted = false;

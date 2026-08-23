@@ -2,9 +2,13 @@ import { Navigate, Outlet } from "react-router-dom";
 import { useSelector } from "react-redux";
 
 const ProtectedRoute = ({ allowedRoles }) => {
-  const { user, isAuthenticated } = useSelector(
+  const { user, isAuthenticated, isLoading } = useSelector(
     (state) => state.auth
   );
+
+  if (isLoading) {
+    return <div className="min-h-screen bg-black text-white">Loading...</div>;
+  }
 
   // Not logged in
   if (!isAuthenticated || !user) {

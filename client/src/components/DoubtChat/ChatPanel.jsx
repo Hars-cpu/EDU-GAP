@@ -5,9 +5,12 @@ import {
   FiMessageCircle,
   FiPaperclip,
   FiSearch,
+  FiClipboard,
+  FiArrowRight,
 } from "react-icons/fi";
 
 import { WORKFLOW_STEPS, panelMotion } from "./constants";
+import { useNavigate } from "react-router-dom";
 
 export default function ChatPanel({
   sourceCount,
@@ -19,7 +22,9 @@ export default function ChatPanel({
   onOpenSourceModal,
   onComposerChange,
   onSend,
+
 }) {
+  const navigate = useNavigate();
   return (
     <motion.section
       variants={panelMotion}
@@ -29,22 +34,63 @@ export default function ChatPanel({
       className="grid min-h-[620px] min-w-0 flex-1 grid-rows-[auto_1fr_auto] overflow-hidden rounded-[22px] border border-emerald-950/5 bg-white shadow-[0_18px_45px_rgba(37,98,82,0.08)]"
       aria-label="Ask your doubts"
     >
-      <header className="flex items-center gap-4 border-b border-slate-100 px-6 py-5 lg:px-8">
-        <motion.span
-          whileHover={{ rotate: 8, scale: 1.05 }}
-          className="grid h-10 w-10 place-items-center rounded-xl bg-emerald-50 text-xl text-[#008f68]"
-        >
-          <FiMessageCircle />
-        </motion.span>
-        <div>
-          <h1 className="text-2xl font-semibold text-slate-950">
-            Ask your doubts
-          </h1>
-          <p className="mt-1 text-xs text-slate-500">
-            Ask questions grounded in your learning material
-          </p>
-        </div>
-      </header>
+     <header className="flex items-center justify-between gap-4 border-b border-slate-100 px-6 py-5 lg:px-8">
+  
+  {/* Left: Chat title */}
+  <div className="flex items-center gap-4">
+    <motion.span
+      whileHover={{ rotate: 8, scale: 1.05 }}
+      className="grid h-10 w-10 place-items-center rounded-xl bg-emerald-50 text-[#008f68]"
+    >
+      <FiMessageCircle />
+    </motion.span>
+
+    <div>
+      <h1 className="text-2xl font-semibold text-slate-950">
+        Ask your doubts
+      </h1>
+
+      <p className="mt-1 text-xs text-slate-500">
+        Ask questions grounded in your learning material
+      </p>
+    </div>
+  </div>
+
+  {/* Right: Start Quiz */}
+  <motion.button
+    whileHover={{
+      scale: 1.04,
+      y: -1,
+    }}
+    whileTap={{
+      scale: 0.97,
+    }}
+    onClick={() => navigate("/student/quiz")}
+    className="
+      flex
+      items-center
+      gap-2
+      rounded-xl
+      bg-[#008f68]
+      px-5
+      py-3
+      text-sm
+      font-semibold
+      text-white
+      shadow-md
+      shadow-emerald-900/10
+      transition
+      hover:bg-[#007a59]
+    "
+  >
+    <FiClipboard size={17} />
+
+    <span>Start Quiz</span>
+
+    <FiArrowRight size={16} />
+  </motion.button>
+
+</header>
 
       <div className="flex max-h-[calc(100vh-250px)] min-h-[360px] flex-col gap-7 overflow-y-auto px-6 py-6 lg:px-8 lg:py-7">
         <AnimatePresence initial={false}>

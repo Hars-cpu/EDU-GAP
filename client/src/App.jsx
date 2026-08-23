@@ -19,34 +19,50 @@ import { toast } from "react-toastify";
 import ProtectedRoute from "./components/ProtectedRoute";
 import "react-toastify/dist/ReactToastify.css";
 import Chatbot from "./pages/Chatbot";
-import Quiz from "./pages/Quiz";
+
 import Analytics from "./pages/Analytics";
 import GuestRoute from "./components/GuestRoute";
-
+import StudentQuiz from "./pages/StudentQuiz";
 import {serverurl} from "./main.jsx";
 import axios from "axios";
+
+const CURRENT_USER_WELCOME_TOAST_ID = "current-user-welcome";
+
 function App() {
   const dispatch = useDispatch();
 
   useEffect(() => {
+    const controller = new AbortController();
+    let isMounted = true;
+
     const getCurrentUser = async () => {
       try {
         const response = await axios.get(`${serverurl}/api/auth/current-user`, {
           withCredentials: true,
+          signal: controller.signal,
         });
 
+        if (!isMounted) return;
         dispatch(setUser(response.data.user));
-        toast.success("User welcome back " + response.data.user.name);
+        toast.success("User welcome back " + response.data.user.name, {
+          toastId: CURRENT_USER_WELCOME_TOAST_ID,
+        });
       } catch (error) {
+        if (error.code === "ERR_CANCELED") return;
         console.error(
           error.response?.data?.message || error.message,
           "Failed to fetch current user"
         );
-        dispatch(clearUser());
+        if (isMounted) dispatch(clearUser());
       }
     };
 
     getCurrentUser();
+
+    return () => {
+      isMounted = false;
+      controller.abort();
+    };
   }, [dispatch]);
 
   return (
@@ -90,11 +106,17 @@ function App() {
     element={<Chatbot />}
   />
 
-  <Route
+  
+   <Route
     path="/student/quiz"
-    element={<Quiz />}
+    element={<StudentQuiz />}
   />
 
+  {/* Open created quiz */}
+  <Route
+    path="/student/quiz/:quizId"
+    element={<StudentQuiz />}
+  />
   <Route
     path="/student/analytics"
     element={<Analytics />}
