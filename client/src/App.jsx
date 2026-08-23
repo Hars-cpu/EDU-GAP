@@ -19,7 +19,7 @@ import { toast } from "react-toastify";
 import ProtectedRoute from "./components/ProtectedRoute";
 import "react-toastify/dist/ReactToastify.css";
 import Chatbot from "./pages/Chatbot";
-
+import StudentAnalytics from "./pages/StudentAnalytics";
 import Analytics from "./pages/Analytics";
 import GuestRoute from "./components/GuestRoute";
 import StudentQuiz from "./pages/StudentQuiz";
@@ -137,9 +137,15 @@ function App() {
   />
 
   <Route
-    path="/teacher/students"
-    element={<StudentProgress />}
+    path="/teacher/analytics"
+    element={<Analytics />}
   />
+
+  <Route
+    path="/teacher/student/:studentId"
+    element={<StudentAnalytics />}
+  />
+
 </Route>
 
       </Routes>
