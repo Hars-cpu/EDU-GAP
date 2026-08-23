@@ -1,6 +1,6 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
-import { store } from "./redux/store";
+import { store } from "./redux/store.js";
 
 import { ToastContainer } from "react-toastify";
 import { Provider } from "react-redux";

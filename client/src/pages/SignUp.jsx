@@ -12,7 +12,7 @@ import {
 import { Link, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { useDispatch } from "react-redux";
-import { setUser } from "../redux/slices/authSlice";
+import { setUser } from "../redux/slices/authSlice.js";
 import axios from "axios";
 
 const SignUp = () => {
@@ -127,38 +127,34 @@ const SignUp = () => {
     try {
       setLoading(true);
 
-      // ========================================
-      // FAKE API REQUEST
-      // Replace with real API later
-      // ========================================
-
-      const response =await axios.post(
+      const response = await axios.post(
         "http://localhost:5000/api/auth/signup",
-        formData,{
-          withCredentials: true,}
+        {
+          ...formData,
+          class: formData.className.trim(),
+        },
+        {
+          withCredentials: true,
+        }
       );
-       
+
       dispatch(
-  setUser({
-    id: response.user.id,
-    name: response.user.name,
-    username: response.user.username,
-    email: response.user.email,
-    className: response.user.className,
-    role: response.user.role,
-  })
-);
-      toast.success(response.message);
+        setUser({
+          id: response.data.user.id,
+          name: response.data.user.name,
+          username: response.data.user.username,
+          email: response.data.user.email,
+          className: response.data.user.class,
+          role: response.data.user.role,
+        })
+      );
+      toast.success(response.data.message);
 
       // Navigate to signin after success
       setTimeout(() => {
         navigate("/signin");
       }, 1000);
     } catch (error) {
-      // ========================================
-      // BACKEND ERROR
-      // ========================================
-
       const message =
         error?.response?.data?.message ||
         error?.message ||

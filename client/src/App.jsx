@@ -19,7 +19,7 @@ import { toast } from "react-toastify";
 import ProtectedRoute from "./components/ProtectedRoute";
 import "react-toastify/dist/ReactToastify.css";
 
-
+import GuestRoute from "./components/GuestRoute";
 
 import {serverurl} from "./main.jsx";
 import axios from "axios";
@@ -29,14 +29,17 @@ function App() {
   useEffect(() => {
     const getCurrentUser = async () => {
       try {
-        const user = await axios.get(`${serverurl}/api/auth/current-user`, {
+        const response = await axios.get(`${serverurl}/api/auth/current-user`, {
           withCredentials: true,
         });
 
-        dispatch(setUser(user));
-        toast.success("user wlcome back " + user.data.user.name);
+        dispatch(setUser(response.data.user));
+        toast.success("User welcome back " + response.data.user.name);
       } catch (error) {
-        console.error(error.response.data.message, " Failed to fetch current user");
+        console.error(
+          error.response?.data?.message || error.message,
+          "Failed to fetch current user"
+        );
         dispatch(clearUser());
       }
     };
@@ -54,16 +57,19 @@ function App() {
           path="/"
           element={<LandingPage />}
         />
+         
+         <Route element={<GuestRoute />}>
+  <Route
+    path="/signin"
+    element={<SignIn />}
+  />
 
-        <Route
-          path="/signup"
-          element={<SignUp />}
-        />
-
-        <Route
-          path="/signin"
-          element={<SignIn />}
-        />
+  <Route
+    path="/signup"
+    element={<SignUp />}
+  />
+</Route>
+        
 
         {/* ================= STUDENT ================= */}
 

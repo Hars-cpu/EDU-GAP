@@ -183,7 +183,7 @@ const [showPassword, setShowPassword] =
 
       const response =
         await axios.post(
-          `${serverurl}/api/auth/signin`,
+          `${serverurl}/api/auth/login`,
           payload,
           {
             withCredentials: true,
@@ -198,7 +198,7 @@ const [showPassword, setShowPassword] =
         response.data
       );
 
-dispatch(setUser(response.user));
+      dispatch(setUser(response.data.user));
       /* =========================
          SUCCESS
       ========================= */
@@ -209,7 +209,7 @@ dispatch(setUser(response.user));
       );
 
 
-     if (response.user.role === "student") {
+     if (response.data.user.role === "student") {
   navigate("/student");
 } else {
   navigate("/teacher");

@@ -29,7 +29,6 @@ export const signup = async (req, res) => {
       class: userClass,
     } = req.body;
 
-
     const existingUser = await User.findOne({
       $or: [{ email }, { username }],
     });
@@ -40,9 +39,7 @@ export const signup = async (req, res) => {
       });
     }
 
-
     const hashedPassword = await bcrypt.hash(password, 10);
-
 
     const user = await User.create({
       name,
@@ -52,10 +49,7 @@ export const signup = async (req, res) => {
       role,
       class: userClass,
     });
-
-
     const token = generateToken(user);
-
 
     // Send JWT in cookie
     res.cookie("token", token, {
@@ -80,11 +74,34 @@ export const signup = async (req, res) => {
 
 
   } catch (error) {
+    console.error("Signup request failed", {
+      error: error.stack,
+      body: { ...req.body, password: "[REDACTED]" },
+      headers: {
+        origin: req.headers.origin,
+        contentType: req.headers["content-type"],
+        cookie: req.headers.cookie ? "[PRESENT]" : "[ABSENT]",
+      },
+    });
     res.status(500).json({
       message: "Signup failed",
       error: error.message,
     });
   }
+};
+
+// Current authenticated user
+export const getCurrentUser = async (req, res) => {
+  res.status(200).json({
+    user: {
+      id: req.user._id,
+      name: req.user.name,
+      username: req.user.username,
+      email: req.user.email,
+      role: req.user.role,
+      class: req.user.class,
+    },
+  });
 };
 
 
