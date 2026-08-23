@@ -2,15 +2,34 @@ import mongoose from "mongoose";
 
 const questionSchema = new mongoose.Schema(
   {
-    questionText: String,
+    questionText: {
+      type: String,
+      required: true,
+      trim: true,
+    },
 
-    options: [String],
+    options: {
+      type: [String],
+      validate: {
+        validator: (values) =>
+          Array.isArray(values) &&
+          values.length >= 2 &&
+          values.every((value) => typeof value === "string" && value.trim().length > 0),
+        message: "Each question must have at least two non-empty options.",
+      },
+      required: true,
+    },
 
-    correctAnswer: String,
+    correctAnswer: {
+      type: String,
+      required: true,
+      trim: true,
+    },
 
     selectedAnswer: {
       type: String,
       default: null,
+      trim: true,
     },
 
     isCorrect: {
@@ -28,25 +47,41 @@ const quizSchema = new mongoose.Schema(
       ref: "User",
     },
 
-    sourceTitle: {
-      type: String,
-      default: null,
-    },
+    
 
     origin: {
       type: String,
       enum: ["chat", "weak_topics"],
+      default: "chat",
+      required: true,
     },
 
-   
+    questions: {
+      type: [questionSchema],
+      validate: {
+        validator: (values) => Array.isArray(values) && values.length >= 2 && values.length <= 10,
+        message: "Quiz must contain between 2 and 10 questions.",
+      },
+      required: true,
+    },
 
-    questions: [questionSchema],
+    totalQuestions: {
+      type: Number,
+      required: true,
+      min: 2,
+      max: 10,
+    },
 
-    totalQuestions: Number,
+    currentQuestionIndex: {
+      type: Number,
+      default: 0,
+      min: 0,
+    },
 
     score: {
       type: Number,
       default: null,
+      min: 0,
     },
 
     strengths: {
@@ -75,4 +110,6 @@ const quizSchema = new mongoose.Schema(
   }
 );
 
-module.exports = mongoose.model("Quiz", quizSchema);
+const Quiz = mongoose.models.Quiz || mongoose.model("Quiz", quizSchema);
+
+export default Quiz;

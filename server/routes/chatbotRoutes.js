@@ -1,7 +1,16 @@
 import express from "express";
 import multer from "multer";
+import { PDFParse } from "pdf-parse";
 import { protect } from "../middleware/authMiddleware.js";
-import { addSource, getHistory, appendHistory, indexChunks, listSources, removeSource } from "../services/chatbotStore.js";
+import {
+  addSource,
+  getHistory,
+  appendHistory,
+  indexChunks,
+  listSources,
+  removeSource,
+  resetUserChatbotSession,
+} from "../services/chatbotStore.js";
 import { runChatbot } from "../services/chatbotGraph.js";
 
 const router = express.Router();
@@ -14,7 +23,24 @@ const chunkText = (text, size = 1200) => {
   return chunks;
 };
 
+const extractPdfText = async (buffer) => {
+  const parser = new PDFParse({ data: buffer });
+  try {
+    const result = await parser.getText();
+    return result.text.replace(/\s+/g, " ").trim();
+  } finally {
+    await parser.destroy();
+  }
+};
+
 router.get("/sources", (req, res) => res.json({ sources: listSources(req.user._id) }));
+router.post("/reset", (req, res) => {
+  resetUserChatbotSession(req.user._id);
+  res.json({
+    message: "Chatbot session reset",
+    sources: listSources(req.user._id),
+  });
+});
 
 router.post("/sources", upload.single("file"), async (req, res) => {
   try {
@@ -24,7 +50,14 @@ router.post("/sources", upload.single("file"), async (req, res) => {
       const response = await fetch(req.body.url);
       text = (await response.text()).replace(/<[^>]+>/g, " ");
     } else if (req.file) {
-      text = req.file.buffer.toString("utf8");
+      text = type === "pdf"
+        ? await extractPdfText(req.file.buffer)
+        : req.file.buffer.toString("utf8");
+    }
+    if (type === "pdf" && !text) {
+      return res.status(400).json({
+        message: "Unable to extract readable text from this PDF.",
+      });
     }
     const name = req.body.name || req.file?.originalname || req.body.url || "Untitled source";
     const source = addSource(req.user._id, { type, name, meta: req.file ? `${Math.ceil(req.file.size / 1024)} KB` : req.body.url || "In memory" });

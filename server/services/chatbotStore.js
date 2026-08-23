@@ -26,6 +26,13 @@ export const removeSource = (userId, sourceId) => {
   store.sources = store.sources.filter((source) => source.id !== sourceId);
   store.chunks = store.chunks.filter((chunk) => chunk.sourceId !== sourceId);
 };
+export const resetUserChatbotSession = (userId) => {
+  const store = getUserStore(userId);
+  store.sources = [];
+  store.chunks = [];
+  store.history = [];
+  store.vectorStore = null;
+};
 export const getChunks = (userId) => getUserStore(userId).chunks;
 export const indexChunks = async (userId, chunks) => {
   const store = getUserStore(userId);

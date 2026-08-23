@@ -1,55 +1,21 @@
 import express from "express";
-
 import {
-    createQuiz,
-    getQuizById,
-    submitQuestionAnswer,
-    completeQuiz,
-    deleteQuiz
+  completeQuiz,
+  createQuiz,
+  deleteQuiz,
+  getQuizById,
+  submitQuestionAnswer,
 } from "../controllers/quiz.controller.js";
-
-import { protect } from "../middleware/auth.middleware.js";
+import { protect } from "../middleware/authMiddleware.js";
 
 const router = express.Router();
 
+router.use(protect);
 
-// Create quiz
-router.post(
-    "/",
-    // protect,
-    createQuiz
-);
-
-
-// Get quiz by ID
-router.get(
-    "/:id",
-    // protect,
-    getQuizById
-);
-
-
-// Submit answer for one question
-router.post(
-    "/:quizId/question/:questionIndex/answer",
-    // protect,
-    submitQuestionAnswer
-);
-
-
-// Complete quiz
-router.post(
-    "/:quizId/complete",
-    // protect,
-    completeQuiz
-);
-
-
-// Delete quiz
-router.delete(
-    "/:id",
-    // protect,
-    deleteQuiz
-);
+router.post("/", createQuiz);
+router.get("/:id", getQuizById);
+router.post("/:quizId/question/:questionIndex/answer", submitQuestionAnswer);
+router.post("/:quizId/complete", completeQuiz);
+router.delete("/:id", deleteQuiz);
 
 export default router;

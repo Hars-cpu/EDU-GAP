@@ -1,29 +1,15 @@
 import express from "express";
-
 import {
-    getAnalytics,
-    getInProgressQuizzes
+  getAnalytics,
+  getInProgressQuizzes,
 } from "../controllers/analytics.controller.js";
-
-// import { protect } from "../middleware/auth.middleware.js";
+import { protect } from "../middleware/authMiddleware.js";
 
 const router = express.Router();
 
+router.use(protect);
 
-// Analytics + latest 3 completed quizzes
-router.get(
-    "/",
-    // protect,
-    getAnalytics
-);
-
-
-// Only in-progress quizzes
-router.get(
-    "/quizzes",
-    // protect,
-    getInProgressQuizzes
-);
-
+router.get("/", getAnalytics);
+router.get("/quizzes", getInProgressQuizzes);
 
 export default router;
