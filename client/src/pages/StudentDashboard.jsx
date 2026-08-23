@@ -30,6 +30,7 @@ const features = [
       "Test your understanding with AI-generated quizzes based on your learning.",
     icon: FiClipboard,
     path: "/student/quiz",
+    isComingSoon: true,
   },
   {
     title: "Analytics",
@@ -39,6 +40,8 @@ const features = [
     path: "/student/analytics",
   },
 ];
+
+const DASHBOARD_QUIZ_COMING_SOON_TOAST_ID = "dashboard-quiz-coming-soon";
 
 const StudentDashboard = () => {
   const navigate = useNavigate();
@@ -69,6 +72,17 @@ const StudentDashboard = () => {
           "Unable to logout. Please try again."
       );
     }
+  };
+
+  const handleFeatureClick = (feature) => {
+    if (feature.isComingSoon) {
+      toast.info("Coming Soon! Use Ask Questions to start a quiz from chat.", {
+        toastId: DASHBOARD_QUIZ_COMING_SOON_TOAST_ID,
+      });
+      return;
+    }
+
+    navigate(feature.path);
   };
 
   return (
@@ -265,7 +279,7 @@ const StudentDashboard = () => {
             return (
               <motion.button
                 key={feature.title}
-                onClick={() => navigate(feature.path)}
+                onClick={() => handleFeatureClick(feature)}
                 initial={{
                   opacity: 0,
                   y: 35,
