@@ -2,9 +2,9 @@ import express from "express";
 import {
   getAnalytics,
   getInProgressQuizzes,
-    getStudentAnalyticsForTeacher,
+  getStudentAnalyticsForTeacher,
 } from "../controllers/analytics.controller.js";
-import { protect } from "../middleware/authMiddleware.js";
+import { protect, teacherOnly } from "../middleware/authMiddleware.js";
 
 const router = express.Router();
 
@@ -14,7 +14,7 @@ router.get("/", getAnalytics);
 router.get("/quizzes", getInProgressQuizzes);
 router.get(
   "/teacher/student/:studentId/analytics",
- 
+  teacherOnly,
   getStudentAnalyticsForTeacher
 );
 export default router;

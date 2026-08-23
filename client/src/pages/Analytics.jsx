@@ -1,5 +1,6 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import axios from "axios";
 import {
   FiArrowLeft,
   FiBarChart2,
@@ -12,78 +13,59 @@ import {
   FiChevronRight,
 } from "react-icons/fi";
 import { useNavigate } from "react-router-dom";
+import { serverurl } from "../main.jsx";
 
 const Analytics = () => {
   const navigate = useNavigate();
 
-  // =====================================================
-  // DUMMY DATA
-  // Replace this with API data later
-  // =====================================================
-
-  const [students] = useState([
-    {
-      _id: "student-1",
-      name: "Aarav Sharma",
-      username: "aarav",
-      email: "aarav@gmail.com",
-      className: "10A",
-    },
-    {
-      _id: "student-2",
-      name: "Ananya Singh",
-      username: "ananya",
-      email: "ananya@gmail.com",
-      className: "10B",
-    },
-    {
-      _id: "student-3",
-      name: "Harsh Verma",
-      username: "harsh",
-      email: "harsh@gmail.com",
-      className: "10A",
-    },
-    {
-      _id: "student-4",
-      name: "Karan Kumar",
-      username: "karan",
-      email: "karan@gmail.com",
-      className: "9A",
-    },
-    {
-      _id: "student-5",
-      name: "Meera Patel",
-      username: "meera",
-      email: "meera@gmail.com",
-      className: "10B",
-    },
-    {
-      _id: "student-6",
-      name: "Priya Gupta",
-      username: "priya",
-      email: "priya@gmail.com",
-      className: "9A",
-    },
-    {
-      _id: "student-7",
-      name: "Rahul Raj",
-      username: "rahul",
-      email: "rahul@gmail.com",
-      className: "10A",
-    },
-    {
-      _id: "student-8",
-      name: "Rohan Kumar",
-      username: "rohan",
-      email: "rohan@gmail.com",
-      className: "9B",
-    },
-  ]);
+  const [students, setStudents] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+  const [retryCount, setRetryCount] = useState(0);
 
   const [search, setSearch] = useState("");
 
   const [selectedClass, setSelectedClass] =
     useState("all");
+
+  useEffect(() => {
+    let isMounted = true;
+
+    const fetchStudents = async () => {
+      try {
+        setLoading(true);
+        setError("");
+
+        const response = await axios.get(
+          `${serverurl}/api/users/students`,
+          { withCredentials: true }
+        );
+
+        if (isMounted) {
+          setStudents(
+            Array.isArray(response.data?.students)
+              ? response.data.students
+              : []
+          );
+        }
+      } catch (apiError) {
+        if (isMounted) {
+          setError(
+            apiError?.response?.data?.message ||
+              "Failed to load students"
+          );
+        }
+      } finally {
+        if (isMounted) setLoading(false);
+      }
+    };
+
+    fetchStudents();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [retryCount]);
 
   // =====================================================
   // GET UNIQUE CLASSES
@@ -596,7 +578,21 @@ const Analytics = () => {
             STUDENT CARDS
         ================================================= */}
 
-        {filteredStudents.length > 0 ? (
+        {loading ? (
+          <div className="rounded-3xl bg-white px-6 py-16 text-center text-[#008f68]">
+            Loading students...
+          </div>
+        ) : error ? (
+          <div className="rounded-3xl bg-white px-6 py-16 text-center">
+            <p className="text-red-500">{error}</p>
+            <button
+              onClick={() => setRetryCount((count) => count + 1)}
+              className="mt-5 rounded-xl bg-[#008f68] px-5 py-2.5 text-sm font-semibold text-white"
+            >
+              Retry
+            </button>
+          </div>
+        ) : filteredStudents.length > 0 ? (
 
           <div className="
             grid

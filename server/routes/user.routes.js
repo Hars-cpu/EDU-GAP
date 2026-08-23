@@ -1,16 +1,15 @@
 import express from "express";
 
-import {
-  getAllStudents,
-} from "../controllers/user.controller.js";
+import { getAllStudents } from "../controllers/user.controller.js";
 
-import protect from "../middleware/auth.middleware.js";
+import { protect, teacherOnly } from "../middleware/authMiddleware.js";
 
 const router = express.Router();
 
 router.get(
   "/students",
-   protect,
+  protect,
+  teacherOnly,
   getAllStudents
 );
 

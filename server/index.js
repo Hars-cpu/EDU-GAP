@@ -8,7 +8,7 @@ import authRoutes from "./routes/authRoutes.js";
 import chatbotRoutes from "./routes/chatbotRoutes.js";
 import quizRoutes from "./routes/quiz.routes.js";
 import analyticsRoutes from "./routes/analytics.routes.js";
-
+import userRoutes from "./routes/user.routes.js";
 
 const app = express();
 
@@ -30,6 +30,7 @@ app.use("/api/auth", authRoutes);
 app.use("/api/chatbot", chatbotRoutes);
 app.use("/api/quiz", quizRoutes);
 app.use("/api/analytics", analyticsRoutes);
+app.use("/api/users", userRoutes);
 
 // Test
 app.get("/", (req, res) => {

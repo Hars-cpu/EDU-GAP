@@ -29,7 +29,7 @@ export const getAllStudents = async (req, res) => {
 
     // Filter by class
     if (className && className !== "all") {
-      query.className = className;
+      query.class = className;
     }
 
     // Search by name / username / email
@@ -53,9 +53,7 @@ export const getAllStudents = async (req, res) => {
     }
 
     const students = await User.find(query)
-      .select(
-        "_id name username email className"
-      )
+      .select("_id name username email class")
       .sort({
         name: 1,
       });
@@ -63,7 +61,13 @@ export const getAllStudents = async (req, res) => {
     res.status(200).json({
       success: true,
       count: students.length,
-      students,
+      students: students.map((student) => ({
+        _id: student._id,
+        name: student.name,
+        username: student.username,
+        email: student.email,
+        className: student.class,
+      })),
     });
 
   } catch (error) {

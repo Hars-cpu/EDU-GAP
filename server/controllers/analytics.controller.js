@@ -1,5 +1,6 @@
 import StudentAnalytics from "../models/studentAnalytics.models.js";
 import Quiz from "../models/quiz.models.js";
+import User from "../models/user.model.js";
 
 export const getAnalytics = async (req, res) => {
   try {
@@ -68,25 +69,54 @@ export const getStudentAnalyticsForTeacher =
     try {
       const { studentId } = req.params;
 
+      const student = await User.findOne({
+        _id: studentId,
+        role: "student",
+      }).select("_id name username email class");
+
+      if (!student) {
+        return res.status(404).json({
+          success: false,
+          message: "Student not found",
+        });
+      }
+
       const analytics =
         await StudentAnalytics.findOne({
           student: studentId,
         }).populate(
           "student",
-          "name username email className"
+          "name username email class"
         );
 
       if (!analytics) {
-        return res.status(404).json({
-          success: false,
-          message:
-            "Student analytics not found",
+        return res.status(200).json({
+          success: true,
+          analytics: {
+            student: {
+              _id: student._id,
+              name: student.name,
+              username: student.username,
+              email: student.email,
+              className: student.class,
+            },
+            recentQuizzes: [],
+            overallProgressSummary: "",
+            weakTopics: [],
+          },
         });
       }
 
+      const analyticsPayload = analytics.toObject();
+      analyticsPayload.student = {
+        ...analyticsPayload.student,
+        className: analyticsPayload.student?.class,
+      };
+      delete analyticsPayload.student?.class;
+
       res.status(200).json({
         success: true,
-        analytics,
+        analytics: analyticsPayload,
       });
 
     } catch (error) {
