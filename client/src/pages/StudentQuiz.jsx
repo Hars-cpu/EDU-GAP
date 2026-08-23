@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState,useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate, useParams } from "react-router-dom";
 import axios from "axios";
@@ -57,7 +57,7 @@ const getInitialIndex = (quizData) => {
 const StudentQuiz = () => {
   const navigate = useNavigate();
   const { quizId } = useParams();
-
+   const quizCreationStarted = useRef(false);
   const [quiz, setQuiz] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -75,37 +75,77 @@ const StudentQuiz = () => {
     setSubmitted(Boolean(question?.selectedAnswer));
   };
 
-  useEffect(() => {
-    const loadQuiz = async () => {
-      try {
-        setLoading(true);
-        setError("");
+ useEffect(() => {
+  const loadQuiz = async () => {
+    // Prevent duplicate API call
+   
 
-        if (!quizId) {
-          const createResponse = await createQuizApi();
-          const newQuizId = createResponse?.quiz?._id;
-          if (!newQuizId) throw new Error("Quiz id missing in create response");
-          navigate(`/student/quiz/${newQuizId}`, { replace: true });
+    setLoading(true);
+    setError("");
+
+    try {
+      // =========================
+      // CREATE QUIZ
+      // =========================
+      if (!quizId) {
+         if (quizCreationStarted.current) {
           return;
         }
 
-        const response = await getQuizByIdApi(quizId);
-        const fetchedQuiz = response.quiz;
-        const initialIndex = getInitialIndex(fetchedQuiz);
+        quizCreationStarted.current = true;
+        
+        const createResponse = await createQuizApi();
 
-        setQuiz(fetchedQuiz);
-        setCurrentQuestionIndex(initialIndex);
-        hydrateQuestionState(fetchedQuiz, initialIndex);
-      } catch (err) {
-        console.error("Start Quiz Error:", err);
-        setError(err?.response?.data?.message || "Failed to start quiz");
-      } finally {
-        setLoading(false);
+        const newQuizId = createResponse?.quiz?._id;
+
+        if (!newQuizId) {
+          throw new Error("Quiz id missing in create response");
+        }
+
+        // Move to /student/quiz/:id
+        navigate(`/student/quiz/${newQuizId}`, {
+          replace: true,
+        });
+
+        return;
       }
-    };
 
-    loadQuiz();
-  }, [quizId, navigate]);
+      // =========================
+      // GET EXISTING QUIZ
+      // =========================
+      const response = await getQuizByIdApi(quizId);
+
+      const fetchedQuiz = response.quiz;
+
+      const initialIndex = getInitialIndex(fetchedQuiz);
+
+      setQuiz(fetchedQuiz);
+      setCurrentQuestionIndex(initialIndex);
+
+      hydrateQuestionState(
+        fetchedQuiz,
+        initialIndex
+      );
+
+    } catch (err) {
+      console.error("Start Quiz Error:", err);
+
+      setError(
+        err?.response?.data?.message ||
+        "Failed to start quiz"
+      );
+
+      // Allow retry if API actually failed
+      quizCreationStarted.current = false;
+
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  loadQuiz();
+
+}, [quizId, navigate]);
 
   const questions = quiz?.questions || [];
   const totalQuestions = questions.length;
