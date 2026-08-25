@@ -137,7 +137,7 @@ function App() {
   />
 
   <Route
-    path="/teacher/student"
+    path="/teacher/students"
     element={<Analytics />}
   />
 
