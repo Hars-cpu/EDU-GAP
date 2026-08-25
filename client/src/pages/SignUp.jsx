@@ -14,7 +14,7 @@ import { toast } from "react-toastify";
 import { useDispatch } from "react-redux";
 import { setUser } from "../redux/slices/authSlice.js";
 import axios from "axios";
-
+import {serverurl} from "../main.jsx";
 const SignUp = () => {
     const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -128,7 +128,8 @@ const SignUp = () => {
       setLoading(true);
 
       const response = await axios.post(
-        "http://localhost:5000/api/auth/signup",
+                `${serverurl}/api/auth/signup`,
+
         {
           ...formData,
           class: formData.className.trim(),
